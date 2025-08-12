@@ -20,7 +20,7 @@ Standalone Python script version of the training pipeline.
 
 Input dataset. Target column is diagnosis(1=m, 0=b); the remaining 30 columns are numeric features.
 
-- **cancer_model.keras / model.keras **
+- **cancer_model.keras / model.keras**
 
 Saved Keras model files (HDF5-style single-file format for tf.keras 3).
 
@@ -28,7 +28,7 @@ Saved Keras model files (HDF5-style single-file format for tf.keras 3).
 
 TensorFlow Lite model with dynamic-range quantization for deployment on CPUs/mobile.
 
-- Model_netron.png 
+- **Model_netron.png** 
 
 Model architecture diagram exported from Netron.
 
