@@ -1,0 +1,32 @@
+---
+title: "Deep Learning model in R(Python source code)"
+author: "Fausford_AI Series"
+date: "2025-08-12"
+output: html_document
+---
+
+```{r}
+
+#install_Packages("reticulate")
+
+```
+https://ugoproto.github.io/ugo_r_doc/pdf/reticulate.pdf
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reticulate)
+```
+
+The model was built in python and used in R
+
+```{r}
+source_python("/cloud/project/Deep_learning_R/model.py")
+```
+
+
+```{r}
+summary(model)
+```
+
+
+

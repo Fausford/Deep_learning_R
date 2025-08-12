@@ -1,0 +1,171 @@
+---
+title: "Deep Learning model in"
+author: "Fausford_AI Series"
+date: "2025-08-12"
+output: html_document
+---
+
+#**Seting up Python Environment in R
+
+```{r}
+#install.packages("keras")   # R interface to Keras/TensorFlow
+#library(keras)
+#install_keras()             # installs TensorFlow, Keras, NumPy, etc.
+
+#library(tensorflow)
+#install_tensorflow()
+
+#library(reticulate)
+#py_install(c("scikit-learn", "numpy", "pandas")) # to install specific modules
+
+#install.packages(c("caret","pROC"))
+
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(keras)
+library(tidyverse)
+library(reticulate)
+library(caret)
+library(pROC)
+```
+
+# ==== Python imports via reticulate ====
+
+```{r}
+
+np        <- import("numpy")
+tf        <- import("tensorflow")
+keras_py  <- tf$keras
+layers    <- keras_py$layers
+sk_ms     <- import("sklearn.model_selection")
+sk_pp     <- import("sklearn.preprocessing")
+sk_utils  <- import("sklearn.utils.class_weight")
+tf <- import("tensorflow")
+```
+
+
+```{r}
+set.seed(42)
+data_ca <- read_csv("cancer.csv")
+```
+
+```{r}
+colnames(data_ca)
+```
+
+```{r}
+# Separate features and labels
+X <- data_ca %>% select(-"diagnosis(1=m, 0=b)") 
+y <- data_ca$"diagnosis(1=m, 0=b)" %>% as.numeric()
+```
+
+# ==== Train/Test split (stratified) ====
+
+```{r}
+split <- sk_ms$train_test_split(X, y, test_size = 0.2, random_state = 42L, stratify = y)
+x_train <- split[[1]]; x_test <- split[[2]]
+y_train <- split[[3]]; y_test <- split[[4]]
+```
+
+# ==== Standardize features using training stats ====
+
+```{r}
+scaler  <- sk_pp$StandardScaler()
+x_train <- scaler$fit_transform(x_train)
+x_test  <- scaler$transform(x_test)
+```
+
+
+# Build model 
+
+```{r}
+p <- ncol(x_train)
+p
+```
+
+```{r}
+model <- keras_model_sequential(
+  layers = list(
+    layer_dense(units = 64, activation = "relu", input_shape = p),
+    layer_dropout(rate = 0.2),
+    layer_dense(units = 32, activation = "relu"),
+    layer_dropout(rate = 0.2),
+    layer_dense(units = 1, activation = "sigmoid")
+  )
+)
+
+
+summary(model)
+```
+
+
+
+```{r}
+keras <- tf$keras
+# then:
+model$compile(optimizer="adam", loss="binary_crossentropy",
+                 metrics=list("accuracy", keras$metrics$AUC(name="auc")))
+
+```
+
+
+```{r}
+# Python Keras object style (model is from tf$keras)
+history <- model$fit(
+  x_train, y_train,
+  batch_size = 32L,
+  epochs = 50L,
+  validation_split = 0.2,
+  callbacks = list(keras$callbacks$EarlyStopping(patience = 5L, restore_best_weights = TRUE)),
+  verbose = 2L
+)
+
+```
+
+
+```{r}
+# --- 1) Evaluate (loss/acc/auc) ---
+scores <- model$evaluate(x_test, y_test, verbose = 0L)
+# Give names to the returned values (usually: loss, accuracy, auc)
+names(scores) <- as.character(model$metrics_names)
+print(scores)
+
+
+# --- 2) Predict probabilities & labels ---
+prob <- as.numeric(model$predict(x_test))
+pred <- ifelse(prob >= 0.5, 1L, 0L)
+
+# --- 3) Confusion matrix (R caret) ---
+cm <- caret::confusionMatrix(
+  factor(pred, levels = c(0,1), labels = c("benign","malignant")),
+  factor(y_test, levels = c(0,1), labels = c("benign","malignant")),
+  positive = "malignant"
+)
+print(cm)
+
+
+```
+```{r}
+# --- 4) ROC/AUC (R pROC) ---
+roc_obj <- pROC::roc(response = y_test, predictor = prob, quiet = TRUE)
+cat(sprintf("ROC AUC (pROC): %.4f\n", as.numeric(pROC::auc(roc_obj))))
+plot(roc_obj, print.auc = TRUE, main = "ROC — Malignant vs Benign")
+
+```
+
+```{r}
+
+model$save("cancer_model.keras")
+
+```
+
+
+```{r}
+f <- tf$io$gfile$GFile("cancer_drq.tflite", "wb")
+f$write(tflite_model)
+f$close()
+```
+
