@@ -4,7 +4,7 @@ A compact, end-to-end example of building, evaluating, and exporting a neural ne
 
 # What this repo contains
 
--[Deep_Learning_R.Rmd](https://github.com/Fausford/Deep_learning_R/blob/main/Deep_Learning_R.Rmd)
+- [Deep_Learning_R.Rmd](https://github.com/Fausford/Deep_learning_R/blob/main/Deep_Learning_R.Rmd)
 
 R Markdown notebook with the full pipeline in R (data prep, split, scaling, model build, training, evaluation, ROC).
 
@@ -12,7 +12,7 @@ R Markdown notebook with the full pipeline in R (data prep, split, scaling, mode
 
 R Markdown showing the Python workflow executed from R via reticulate.
 
--[model.py](https://github.com/Fausford/Deep_learning_R/blob/main/model.py)
+- [model.py](https://github.com/Fausford/Deep_learning_R/blob/main/model.py)
 
 Standalone Python script version of the training pipeline.
 
@@ -20,15 +20,15 @@ Standalone Python script version of the training pipeline.
 
 Input dataset. Target column is diagnosis(1=m, 0=b); the remaining 30 columns are numeric features.
 
--cancer_model.keras / model.keras 
+- **cancer_model.keras / model.keras **
 
 Saved Keras model files (HDF5-style single-file format for tf.keras 3).
 
-- cancer_drq.tflite 
+- **cancer_drq.tflite** 
 
 TensorFlow Lite model with dynamic-range quantization for deployment on CPUs/mobile.
 
--Model_netron.png 
+- Model_netron.png 
 
 Model architecture diagram exported from Netron.
 
@@ -96,7 +96,7 @@ Hardware: CPU-only is sufficient. GPU is optional and not required.
 
 # Model visualization
 
-Netron: Open cancer_model.keras or model.keras in Netron to explore layers and shapes; Model_netron.png provides a snapshot.
+ Open cancer_model.keras or model.keras in Netron to explore layers and shapes; Model_netron.png provides a snapshot.
 
 ![Model diagram](Model_netron.png)
 
