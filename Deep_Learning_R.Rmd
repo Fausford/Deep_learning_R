@@ -58,9 +58,11 @@ colnames(data_ca)
 
 ```{r}
 # Separate features and labels
-X <- data_ca %>% select(-"diagnosis(1=m, 0=b)") 
+X <- data_ca %>% select(-"diagnosis(1=m, 0=b)") |> as.matrix()
 y <- data_ca$"diagnosis(1=m, 0=b)" %>% as.numeric()
 ```
+
+
 
 # ==== Train/Test split (stratified) ====
 
@@ -68,6 +70,16 @@ y <- data_ca$"diagnosis(1=m, 0=b)" %>% as.numeric()
 split <- sk_ms$train_test_split(X, y, test_size = 0.2, random_state = 42L, stratify = y)
 x_train <- split[[1]]; x_test <- split[[2]]
 y_train <- split[[3]]; y_test <- split[[4]]
+```
+
+```{r}
+
+# If these are R objects, coerce them to NumPy arrays (float32 is fine)
+x_train <- np$asarray(x_train, dtype = "float32")
+x_test  <- np$asarray(x_test,  dtype = "float32")
+y_train <- np$asarray(y_train, dtype = "float32")  # or "int32"
+y_test  <- np$asarray(y_test,  dtype = "float32")
+
 ```
 
 # ==== Standardize features using training stats ====
